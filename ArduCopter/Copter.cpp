@@ -815,6 +815,7 @@ void Copter::one_hz_loop()
         }
     }
 #endif
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "Current attitude:%1fm", copter.flightmode->get_alt_above_ground_m()/100.0f);
 }
 
 void Copter::init_simple_bearing()
