@@ -151,6 +151,8 @@ Mode *Copter::mode_from_mode_num(const Mode::Number mode)
         case Mode::Number::TURTLE:
             return &mode_turtle;
 #endif
+        case Mode::Number::DRAWSTAR:
+            return &mode_drawstar;
 
         default:
             break;

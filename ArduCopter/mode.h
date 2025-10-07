@@ -101,6 +101,7 @@ public:
         AUTOROTATE =   26,  // Autonomous autorotation
         AUTO_RTL =     27,  // Auto RTL, this is not a true mode, AUTO will report as this mode if entered to perform a DO_LAND_START Landing sequence
         TURTLE =       28,  // Flip over after crash
+        DRAWSTAR =     29,
 
         // Mode number 30 reserved for "offboard" for external/lua control.
 
@@ -1241,6 +1242,98 @@ private:
     const char* short_name;
 };
 #endif
+
+class ModeDrawStar : public Mode {
+
+public:
+#if AP_EXTERNAL_CONTROL_ENABLED
+    friend class AP_ExternalControl_Copter;
+#endif
+
+    // inherit constructor
+    using Mode::Mode;
+    Number mode_number() const override { return Number::GUIDED; }
+
+    bool init(bool ignore_checks) override;
+    void run() override;
+
+    bool requires_GPS() const override { return true; }
+    bool has_manual_throttle() const override { return false; }
+    bool allows_arming(AP_Arming::Method method) const override;
+    bool is_autopilot() const override { return true; }
+    bool has_user_takeoff(bool must_navigate) const override { return false; }
+    bool in_guided_mode() const override { return true; }
+
+    bool requires_terrain_failsafe() const override { return true; }
+
+
+    // Return true if the throttle high arming check can be skipped when arming from GCS or Scripting
+    bool allows_GCS_or_SCR_arming_with_throttle_high() const override { return true; }
+
+    // Sets guided's angular target submode: Using a rotation quaternion, angular velocity, and climbrate or thrust (depends on user option)
+    // attitude_quat: IF zero: ang_vel (angular velocity) must be provided even if all zeroes
+    //                IF non-zero: attitude_control is performed using both the attitude quaternion and angular velocity
+    // ang_vel: angular velocity (rad/s)
+    // climb_rate_ms_or_thrust: represents either the climb_rate (m/s) or thrust scaled from [0, 1], unitless
+    // use_thrust: IF true: climb_rate_ms_or_thrust represents thrust
+    //             IF false: climb_rate_ms_or_thrust represents climb_rate (m/s)
+    // get position, velocity and acceleration targets
+    const Vector3p& get_target_pos_NEU_m() const;
+    const Vector3f& get_target_vel_NEU_ms() const;
+    const Vector3f& get_target_accel_NEU_mss() const;
+
+    // returns true if GUIDED_OPTIONS param suggests SET_ATTITUDE_TARGET's "thrust" field should be interpreted as thrust instead of climb rate
+    
+
+    enum class SubMode {
+        TakeOff,
+        WP,
+        Pos,
+        PosVelAccel,
+        VelAccel,
+        Accel,
+        Angle,
+    };
+
+    SubMode submode() const { return guided_mode; }
+    // return guided mode timeout in milliseconds. Only used for velocity, acceleration, angle control, and angular rate control
+
+protected:
+
+    const char *name() const override { return "GUIDED"; }
+    const char *name4() const override { return "GUID"; }
+
+private:
+    Vector3p path[10];
+    int path_num;
+    
+    // returns true if the Guided-mode-option is set (see GUID_OPTIONS)
+    // wp controller
+    void genarate_path();
+    void wp_control_start();
+    void wp_control_run();
+    // controls which controller is run (pos or vel):
+    static SubMode guided_mode;
+    static bool send_notification;     // used to send one time notification to ground station
+    static bool takeoff_complete;      // true once takeoff has completed (used to trigger retracting of landing gear)
+
+    // guided mode is paused or not
+    static bool _paused;
+
+    enum class Option : uint32_t {
+        AllowArmingFromTX   = (1U << 0),
+        // this bit is still available, pilot yaw was mapped to bit 2 for symmetry with auto
+        IgnorePilotYaw      = (1U << 2),
+        SetAttitudeTarget_ThrustAsThrust = (1U << 3),
+        DoNotStabilizePositionXY = (1U << 4),
+        DoNotStabilizeVelocityXY = (1U << 5),
+        WPNavUsedForPosControl = (1U << 6),
+        AllowWeatherVaning = (1U << 7)
+    };
+    // returns true if the Guided-mode-option is set (see GUID_OPTIONS)
+    bool option_is_enabled(Option option) const;
+};
+
 
 class ModeGuidedNoGPS : public ModeGuided {
 

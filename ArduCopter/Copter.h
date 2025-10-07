@@ -214,6 +214,7 @@ public:
     friend class ModeFlowHold;
     friend class ModeFollow;
     friend class ModeGuided;
+    friend class ModeDrawStar;
     friend class ModeLand;
     friend class ModeLoiter;
     friend class ModePosHold;
@@ -1053,7 +1054,6 @@ private:
 #if MODE_GUIDED_ENABLED
     ModeGuided mode_guided;
 #if AP_SCRIPTING_ENABLED
-    // Custom modes registered at runtime
     ModeGuidedCustom *mode_guided_custom[5];
 #endif
 #endif
@@ -1102,6 +1102,9 @@ private:
 #if MODE_TURTLE_ENABLED
     ModeTurtle mode_turtle;
 #endif
+
+    ModeDrawStar mode_drawstar;
+
 
     // mode.cpp
     Mode *mode_from_mode_num(const Mode::Number mode);
