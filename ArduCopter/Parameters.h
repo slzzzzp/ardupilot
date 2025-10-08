@@ -662,6 +662,8 @@ public:
     AP_Float rangefinder_filt;
 #endif
 
+    AP_Float start_radio_m;
+
 #if MODE_GUIDED_ENABLED
     AP_Float guided_timeout;
 #endif

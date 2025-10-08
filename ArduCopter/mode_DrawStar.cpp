@@ -29,9 +29,9 @@ void ModeDrawStar::run()
  }
 void ModeDrawStar::genarate_path()
 {
-    float radius_m = 10.0;
+    float radius_m = g2.start_radio_m;
 
-    wp_nav->get_wp_stopping_point_NEU_m(path[0]);
+    
     path[1] = path[0]+ Vector3p(1.0f , 0, 0)* radius_m;
     path[2] = path[0]+ Vector3p(-cosf(radians(36.0f)) , -sinf(radians(36.0f)), 0)* radius_m;
     path[3] = path[0]+ Vector3p(sinf(radians(18.0f)) , cosf(radians(18.0f)), 0)* radius_m;
@@ -75,7 +75,8 @@ void ModeDrawStar::wp_control_start()
     wp_nav->wp_and_spline_init_m();
 
     // initialise wpnav to stopping point
-    wp_nav->set_wp_destination_NEU_m(path[0]);
+    // wp_nav->set_wp_destination_NEU_m(path[0]);
+    wp_nav->get_wp_stopping_point_NEU_m(path[0]);
 
     // initialise yaw
     auto_yaw.set_mode_to_default(false);

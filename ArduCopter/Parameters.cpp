@@ -1226,7 +1226,7 @@ const AP_Param::GroupInfo ParametersG2::var_info2[] = {
     // @Description: Selects parameter (normally a PID gain) that is being tuned with an RC transmitter's knob. The RC input channel used is assigned by setting RCx_OPTION to 220.
     AP_GROUPINFO("TUNE2", 13, ParametersG2, rc_tuning2_param, 0),
 #endif  // AP_RC_TRANSMITTER_TUNING_ENABLED
-
+    AP_GROUPINFO("STAR_DADIO_M", 14, ParametersG2, start_radio_m, 10),
     // ID 62 is reserved for the AP_SUBGROUPEXTENSION
 
     AP_GROUPEND
